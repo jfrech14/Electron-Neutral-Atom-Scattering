@@ -12,3 +12,7 @@ Required files are:
 `Bessely.h`
 `Potentials.h`
 `Numerov.h`
+
+On MacOS Mojave with clang++ and libomp, I compile with:
+
+`clang++ -Xpreprocessor -fopenmp -lomp -o Scattering ThomasFermi.cpp`
