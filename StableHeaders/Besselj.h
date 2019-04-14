@@ -1,7 +1,7 @@
 #ifndef Besselj_H
 #define Besselj_H 
 
-    double BesselJup (int l, double x)
+    double Besseljup (int l, double x)
     {
         double j0=fabs(x)>1e-15 ? sin(x)/x : 1;
         if (l<=0) return j0;
@@ -18,9 +18,9 @@
         return j2;
     }
 
-    double BesselJdown (int l, double x)
+    double Besselj (int l, double x)
     {
-        if (fabs(x)>l) return BesselJup(l,x);
+        if (fabs(x)>l) return Besseljup(l,x);
         if (fabs(x)<1e-20&&l<=0) return 1;
         if (fabs(x)<1e-20&&l>0) return 0;
         int lstart = l + static_cast<int>(sqrt(40*l)/2.);

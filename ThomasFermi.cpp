@@ -22,8 +22,10 @@
 
 #include "Headers/Globals.h"
 #include "Headers/Besselj.h"
+#include "Headers/Bessely.h"
 #include "Headers/Numerov.h"
 #include "Headers/Potentials.h"
+#include "Headers/Derivatives.h"
 
 
 //Units are eV,m,s,
@@ -71,7 +73,8 @@ int main()
     std::vector<std::vector<double > > BesseljSol (MeshSize+1,std::vector<double>(nMax+1));
     std::vector<std::vector<double > > BesselySol (MeshSize+1,std::vector<double>(nMax+1));
     std::vector<std::vector<double > > Potential (MeshSize+1,std::vector<double>(2));
-
+    std::vector<double> derivative (MeshSize+1,0);
+    std::vector<double> test (MeshSize+1,0);
 
     //=================================================================================================================================================================
     //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -88,7 +91,12 @@ int main()
                 Potential[i][1]=ThomasFermiPotential(Z,Potential[i][0]); //Second column is V array
                 //Potential[i][1]=HarmonicPotential(Potential[i][0],1.0,1.0);
                 //Potential[i][1]=ZeroPotential(Z,Potential[i][0]);
+                test[i]=(Rmax/MeshSize*i)*(Rmax/MeshSize*i);
             }
+
+
+            derivative=SecondDerivative(test,h);
+
 
             omp_set_num_threads(threads);
             #pragma omp parallel for shared(nMax, BesseljSol) //GenerateBessel Functions Recursively in Parallel
@@ -96,8 +104,8 @@ int main()
             {
                 for (int n=1; n<nMax+1; ++n)
                 {
-                    BesseljSol[i][n]=BesselJdown(n-1,k*BesseljSol[i][0]);
-                    BesselySol[i][n]=BesselJdown(n-1,k*BesselySol[i][0]);
+                    //BesseljSol[i][n]=Besselj(n-1,k*BesseljSol[i][0]);
+                    //BesselySol[i][n]=Bessely(n-1,k*BesselySol[i][0]);
                 }
             }
 
@@ -118,7 +126,8 @@ int main()
             {
                 for (int c=0; c<nMax+1; ++c)
                 {
-                    Solutions_out<<BesseljSol[b][c]<<"\t";
+                    //Solutions_out<<BesselySol[b][c]<<"\t";
+                    Solutions_out<<derivative[b]<<"\t";
                 }
                 Solutions_out<<Potential[b][1]<<"\n";
             }
