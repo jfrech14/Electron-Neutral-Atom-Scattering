@@ -34,7 +34,6 @@
                 j2=j1;
                 j1=j0;
             }
-
         }
         double true_j0=sin(x)/x;
         return jl*true_j0/j0;

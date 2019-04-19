@@ -3,17 +3,24 @@
 
 	double LegendreP(int l, double x)
 	{
-        double j0=1;
-        if (l<=0) return j0;
-        double j1=x;
-        double j2=j1;
-        for (int i=2; i<=l; i++)
+        double P0=1.0;
+        if (l<=0) 
+            {
+                return P0;
+            }
+        double P1=x;
+        if (l==1) 
+            {
+                return P1;
+            }
+        double P2=P1;
+        for (int i=2; i<=l; ++i)
         {
-            j2=j1*(2*i-1)*x/(i) - (i-1)/(i)*j0;
-            j0=j1;
-            j1=j2;
+            P2=P1/i*(2.0*i-1)*x - (double)(i-1)/(i)*P0;
+            P0=P1;
+            P1=P2;
         }
-        return j2;
+        return P2;
 	}
 
 #endif

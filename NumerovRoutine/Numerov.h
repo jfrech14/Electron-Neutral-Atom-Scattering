@@ -1,209 +1,110 @@
 #ifndef Numerov_H
 #define Numerov_H
 
-#include "Globals.h"
-#include "Potentials.h"
+  double g(double V, double E, double r, int lam)
+  {
+      return((2*m/hbar/hbar/SOL/SOL)*( V + hbar*hbar*SOL*SOL/2/m*lam*(lam+1)/r/r - E));
+  }
+
+  std::vector<double> ForwardNumerov(std::vector<std::vector<double> >& Vpot,std::vector<std::vector<double> >& LegenP, double dh, int lmax, double scale, double eEnergy, double k)  
+  {
+    
+    int i, l, i1, i2, n;
+    double ddh12, norm, kappa, r1, r2, tandelta, delta, TotalCross ;
+    
+    int size=Vpot.size()-1;
+    int psize=LegenP.size()-1;
+   
+    /* allocate arrays */
+
+    std::vector<double> cross (lmax+1,0.0);
+    std::vector<double> u (size,0.0);
+    std::vector<double> p (size,0.0);
+    std::vector<double> f (size,0.0);
+    std::vector<double> DiffCross (181,0.0);
+    std::vector<std::vector<double > > DiffCross1 (181,std::vector<double>(lmax+1,0));
 
 
-	double g(double V, double E)
-	{
-	    return(2/h2m*(V-E));
-	}
+      //omp_set_num_threads(threads);
+      //#pragma omp parallel for shared(lmax, k,eEnergy,Vpot,LegenP,DiffCross1)
+      for ( l = 0; l <= lmax; l++ ) 
+      {
+        cross[l] = 0.0 ;
+        ddh12 = dh*dh/12.0;	
+        i2 = size-1;
+        r2 = Vpot[i2][0];
+        i1 = int (0.75*i2);
+        r1 = Vpot[i1][0];
 
-	double numerov(int numE, int Mesh, int dh, const std::vector<std::vector<double > > &Potential)
-	{
-		std::vector<double> x(Mesh+1,0.0);
-		std::vector<double> f(Mesh+1,0.0);
-		std::vector<double> y(Mesh+1,0.0);
-		std::vector<double> ysquared(Mesh+1,0.0);
-		std::vector<double> V(Mesh+1,0.0);
+        /*  set up the f-function used by the Numerov algorithm */
 
-		for(int i=0;i<=Mesh;++i)
-		{
-			//V[i]=Potential[i][1];
-		}
+        for (int i = 0; i <= size ; i++ ) 
+        {
+          f[i] = 1.0 - ddh12*g(Vpot[i][1],eEnergy,Vpot[i][0],l);
+          u[i] = 0.0 ;
+        }
+   
+        u[0] = 0;
+        u[1] = dh;
+        u[2]=dh*dh*g(Vpot[2][1],eEnergy,Vpot[2][0],l)*u[1] +2*dh;
+        /* outward integration */
 
+        for (int i = 2; i < size; i++ ) 
+        {
+          u[i+1] = ((12.0-10.0*f[i])*u[i]-f[i-1]*u[i-1])/f[i+1];
+        }
 
-		int s,iters,icl,zzero;
-		double norm,Eupper,Elower,yicl,discont;
+        /*  normalization through summation integral */
 
+        norm = 0.0 ;
+        for (int i = 0; i <= size; i++ ) { norm += u[i]*u[i]*dh ;}
+        for (int i = 0; i <= size; i++ ) { u[i] = u[i]/sqrt(norm);}
 
-		int zero=numE;
-		int nzeros=0;
-		double Ecalc=0;
+        /* Calculating delta */
 
+        kappa = r1*u[i2]/(r2*u[i1]) ;
+        tandelta = (kappa*Bessely(l,k*r1)-Bessely(l,k*r2)) / (kappa*Bessely(l,k*r1)-Bessely(l,k*r2));
+        delta = atan(tandelta);
+        cross[l] = cross[l] + 4*PI/(k*k) * (double)(2*l+1)*sin(delta)*sin(delta);
 
-		//Begin loop to find Eigenvalue and integrate to find Eigenfunction
-		for(;;)
-		{
-		    //Find Energy Eigenvalue and outward integration
-		    Eupper=V[Mesh];
-		    Elower=Eupper;
-		    for(int i=0;i<=Mesh;i++)
-		    {
-		        if(V[i]<Elower)
-		        {
-		            Elower=V[i];
-		        }
-		        else{}
-		        if(V[i]>Eupper)
-		        {
-		            Eupper=V[i];
-		        }
-		        else{}
-		    }
+        /*  calculation of asymptotic wavefunction p  */
 
-		    if(Ecalc==0)
-		    {
-		        Ecalc=0.5*(Eupper+Elower);
-		        iters=500;
-		    }
-		    else
-		    {
-		        iters=1;
-		        std::cout<<"Here"<<std::endl;
-		    }
+        for (int i = 0; i <= size; i++ ) 
+        {
+          p[i]= sin (k*Vpot[i][0]- (double)l*PI/2.0 + delta); 
+        }
+        /* normalize p so that it is equal to u for Vpot=r2 */
+        for (int i = 0; i <= size; i++ ) 
+        {
+          p[i] = p[i] / (p[i2]/u[i2] );
+        }
+        for (int theta=0;theta<=psize;theta++)
+        {
+          DiffCross1[theta][l]=1.0/k/k*(2*l+1)*(2*l+1)*LegenP[theta][l]*LegenP[theta][l]*sin(delta)*sin(delta);
+          //std::cout<<LegenP[theta][l]<<std::endl;
+        }
+      }
 
-		    for(int k=0;(k<iters) && (Eupper-Elower>pow(10,-10));k++)
-		    {
-		        f[0]=(dh*dh)/(12.)*g(V[0],Ecalc);
-		        icl=-1;
-		        for(int d=1;d<=Mesh;d++)
-		        {
-		            f[d]=(dh*dh)/(12.)*g(V[d],Ecalc);
-		            if(f[d]==0)
-		            {
-		                f[d]=pow(10,-10);
-		            }
-		            else{}
-		            if(f[d]!=std::copysign(f[d],f[d-1]))
-		            {
-		                icl=d;
-		            }
-		            else{}
-		        }
+      omp_set_num_threads(threads);
+      #pragma omp parallel for shared(lmax, DiffCross1)
+      for(int theta=0;theta<=180;theta++)
+      {
+          double sum=0;
+          for (int n=0; n<=lmax; ++n)
+          {
+              sum+=DiffCross1[theta][n];
+          }
+          DiffCross[theta]=sum;
+      }
 
+      TotalCross =0.0;
+      for (int a= 0; a <= lmax; a++ ) 
+        { 
+          TotalCross += cross[a];
+        }
+        std::cout<<TotalCross<<std::endl;
 
+      return(DiffCross);
+  }
 
-		        for(int d=0;d<=Mesh;d++)
-		        {
-		            f[d]=1.0-f[d];
-		            y[d]=0.0;
-		        }
-
-		        zzero=zero/2;
-
-		        if(2*zzero==zero)
-		        {
-		            y[0]=1.0;
-		            y[1]=0.5*(12.0-f[0]*10.0)*y[0]/f[1];
-		        }
-		        else
-		        {
-		            y[0]=0.0;
-		            y[1]=1.0;
-		        }
-
-		        nzeros=0;
-		        for(int a=1;a<=icl-1;a++)
-		        {
-		            y[a+1]=((12.-f[a]*10.)*y[a]-f[a-1]*y[a-1])/f[a+1];
-		            if(y[a]!=std::copysign(y[a],y[a+1]))
-		            {
-		                ++nzeros;
-		            }
-		            else{}
-		        }
-		        yicl=y[icl];
-
-
-		        if(2*zzero==zero)
-		        {
-		            nzeros=2*nzeros;
-		        }
-		        else
-		        {
-		            nzeros=2*nzeros+1;
-		        }
-
-		        if(iters>1)
-		        {
-		            if(nzeros!=zero)
-		            {
-		                if(k==0)
-		                {
-		                    std::cout<<"Iteration"<<"\t"<<"Energy"<<"\t\t"<<"Zeros\t\t"<<"Discont"<<"\n";
-		                }
-		                else{}
-
-		                std::cout<<k<<"\t\t"<<std::setprecision(5)<<Ecalc<<"\t\t"<<nzeros<<"\t\t"<<discont<<"\n";
-
-		                if(nzeros>zero)
-		                {
-		                    Eupper=Ecalc;
-		                }
-		                else
-		                {
-		                    Elower=Ecalc;
-		                }
-		                Ecalc=0.5*(Eupper+Elower);
-		            }
-		            else{}
-		        }
-		        else{}
-
-		        //Begin inward integration after finding correct number of zeros
-		        if(iters==1 || nzeros==zero)
-		        {
-		            y[Mesh]=dh;
-		            y[Mesh-1]=(12.-10.*f[Mesh])*y[Mesh]/f[Mesh-1];
-		            y[Mesh+1]=0;
-		            for(int b=Mesh-1;b>=icl+1;b--)
-		            {
-		                y[b-1]=((12.-10.*f[b])*y[b]-f[b+1]*y[b+1])/f[b-1];
-		            }
-
-		            yicl /= y[icl];
-		            for(int b=icl;b<=Mesh;b++)
-		            {
-		                y[b]*=yicl;
-		            }
-
-		            norm=0;
-		            for(int b=1;b<=Mesh;b++)
-		            {
-		                norm+=(y[b]*y[b]);
-		            }
-		            norm=dh*(2.0*norm+(y[0]*y[0]));
-		            norm=-sqrt(norm);
-
-		            for(int b=0;b<=Mesh;b++)
-		            {
-		                y[b]/=norm;
-		            }
-
-		            if(iters>1)
-		            {
-		                s=icl;
-		                discont=(y[s+1]+y[s-1]-(14.-12.*f[s])*y[s])/dh;
-		                std::cout<<k<<"\t\t"<<Ecalc<<"\t\t"<<nzeros<<"\t\t"<<discont<<"\n";
-		                if(discont*y[s]>0.0)
-		                {
-		                    Eupper=Ecalc;
-		                }
-		                else
-		                {
-		                    Elower=Ecalc;
-		                }
-		                Ecalc=0.5*(Eupper+Elower);
-		            }
-
-		        }
-
-		    }
-		if(nzeros==zero)
-		        break;
-		}
-		return (Ecalc);
-	}
 #endif
