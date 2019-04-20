@@ -23,7 +23,7 @@
         if (fabs(x)>l) return Besseljup(l,x);
         if (fabs(x)<1e-20&&l<=0) return 1;
         if (fabs(x)<1e-20&&l>0) return 0;
-        int lstart = l + static_cast<int>(sqrt(40*l)/2.);
+        int lstart = l + (int)(sqrt(40*l)/2.);
         double j2=0, j1=1;
         double j0,jl, x1=1/x;
         for (int i=lstart; i>=0; i--)
