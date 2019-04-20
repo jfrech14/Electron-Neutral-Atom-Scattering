@@ -10,8 +10,12 @@ Required files are:
 `Globals.h`
 `Besselj.h`
 `Bessely.h`
+`Legendre.h`
 `Potentials.h`
 `Numerov.h`
+`Derivatives.h`
+`Periodic.h`
+
 
 On MacOS Mojave with clang++ and libomp, I compile with:
 
