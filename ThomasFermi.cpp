@@ -73,8 +73,7 @@ int main()
 
         std::cout<<"\n\n\n             Lenz-Jensen Atomic Potential Scattering\n   Shared Memory Parallelism Enabled:\t"<<numcores<<" processing cores used"<<std::endl;
         std::cout<<"__________________________________________________________________\n"<<std::endl;
-        std::cout<<"Electron scattering off ";
-        periodicsearch(Z);
+        std::cout<<"Electron scattering off "<<periodicsearch(Z);
         std::cout<<"\nNumber of partial waves to use: "<<lmax<<std::endl<<std::endl;
 
     //Memory Allocation------------------------------------------------------------------------------------------------------------------------------------------------
@@ -123,8 +122,7 @@ int main()
     //=================================================================================================================================================================
     //    This is the end of the driving function and beginning of writing out data to file and/or console
     //=================================================================================================================================================================
-
-    std::ofstream Solutions1_out ("TotalCS.txt");
+    std::ofstream Solutions1_out (periodicsearch(Z)+"TotalCS.txt");
     if (Solutions1_out.is_open())
     {
         for (int b=0; b<NumEnergies; ++b)
@@ -139,7 +137,7 @@ int main()
         Solutions1_out.close();
     }
 
-    std::ofstream Solutions2_out ("DifferentialCS.txt");
+    std::ofstream Solutions2_out (periodicsearch(Z)+"DifferentialCS.txt");
     if (Solutions2_out.is_open())
     {
         for (int b=0; b<=180; ++b)
