@@ -7,6 +7,7 @@ simulation software that is intended for end-users.
 
 Required files are:
 `ThomasFermi.cpp`
+`Input.txt`
 `Globals.h`
 `Besselj.h`
 `Bessely.h`
