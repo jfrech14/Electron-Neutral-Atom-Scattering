@@ -24,7 +24,7 @@
       std::vector<std::vector<double > > DiffCross1 (181,std::vector<double>(lmax+1,0));
 
       ddh12 = dh*dh/12.0;
-      i1 = (int) ((scale-2)*((size-1)/scale/2.0));
+      i1 = (int) ((scale-3)*((size-1)/scale/2.0));
       r1 = Vpot[i1][0];
       i2 = (int) ((scale-1)*((size-1)/scale/2.0));;
       r2 = Vpot[i2][0];
