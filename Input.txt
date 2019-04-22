@@ -1,10 +1,10 @@
 #Atomic Number of Scatterer
-86
+18
 #Max Energy in eV
 1000
 #Number of energies to calculate
-4000
+6
 #Mesh size
-50000
+5000
 #Scale for Rmax (radius vector is scale*2angstroms)
 18.0
