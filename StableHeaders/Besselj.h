@@ -1,5 +1,5 @@
 #ifndef Besselj_H
-#define Besselj_H 
+#define Besselj_H
 
     double Besseljup (int l, double x)
     {
@@ -25,7 +25,7 @@
         if (fabs(x)<1e-20&&l>0) return 0;
         int lstart = l + (int)(sqrt(40*l)/2.);
         double j2=0, j1=1;
-        double j0,jl, x1=1/x;
+        double j0=0.0,jl=0.0, x1=1/x;
         for (int i=lstart; i>=0; i--)
         {
             j0=(2*i+3.)*x1*j1-j2;

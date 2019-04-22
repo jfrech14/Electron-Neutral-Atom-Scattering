@@ -473,7 +473,7 @@
 		}
 		if(Z==118) 
 		{
-			return "Oganseeon";
+			return "Ogansseon";
 		}
 		return "NoName";
 	}

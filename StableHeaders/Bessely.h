@@ -3,7 +3,7 @@
 
     double Bessely(int l, double x)
     {
-        double y2;
+        double y2=0.0;
         double y0=-cos(x)/x;
         double y1=y0/x-sin(x)/x;
         if(l==0)
