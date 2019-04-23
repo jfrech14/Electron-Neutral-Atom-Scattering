@@ -107,7 +107,7 @@ int main()
     #pragma omp parallel for shared(CrossSections,lmax,scale,h,Potential,NumEnergies)
     for (int en=0;en<NumEnergies;en++)
     {
-        CrossSections[en][0]=(double) pow(10,(-2.0+(en)*5.0/NumEnergies));
+        CrossSections[en][0]=(double) pow(10,(-2.0+(en)*(2+log10(inputs[1]))/NumEnergies));
         Energy=CrossSections[en][0];
         k=sqrt(Energy/hbar2m);
 
