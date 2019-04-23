@@ -45,7 +45,7 @@
           u[2]=dh*dh*g(Vpot[1][1],eEnergy,Vpot[1][0],l)*u[1] +2.0*u[1];
 
           /* outward integration */
-          for (int i = 2; i <= size; i++ )
+          for (int i = 2; i < size; i++ )
           {
             u[i+1] = ((12.0-10.0*f[i])*u[i]-f[i-1]*u[i-1])/f[i+1];
             if (u[i+1]==0.0) return DiffCross;
