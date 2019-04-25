@@ -16,13 +16,13 @@
       /* allocate arrays */
       std::vector<long double> tandelta (lmax+1,0.0);
       std::vector<long double> delta (lmax+1,0.0);
-      std::vector<double> cross (lmax+1,0.0);
+      std::vector<long double> cross (lmax+1,0.0);
       std::vector<long double> u (size+1,0.0);
       std::vector<long double> p (size+1,0.0);
       std::vector<long double> f (size+1,0.0);
       std::vector<double> DiffCross (181,0.0);
       std::vector<std::vector<double > > DiffCross1 (181,std::vector<double>(lmax+1,0));
-      std::vector<std::complex<double> > Amplitude(181,(0.0,0.0));
+      std::vector<std::complex<double> > Amplitude(181,std::complex<double> (0.0,0.0));
 
       ddh12 = dh*dh/12.0;
       i1 = (int) ((scale-3)*((size-1)/scale/2.0));
@@ -38,6 +38,7 @@
           for (int i = 0; i <= size ; i++ )
           {
             f[i] = 1.0 - ddh12*g(Vpot[i][1],eEnergy,Vpot[i][0],l);
+            u[i] = 0.0 ;
           }
 
           u[0] = 0;
@@ -89,9 +90,9 @@
       else{check=0;}
       for(int theta=0;theta<=180;theta++)
       {
+          DiffCross[theta]=std::norm(Amplitude[theta]);
           for (int n=0; n<=lmax; ++n)
           {
-              DiffCross[theta]=std::norm(Amplitude[theta]);
               if (check==1){PartialWaves[theta][n]=DiffCross1[theta][n];}
           }
       }check=1;

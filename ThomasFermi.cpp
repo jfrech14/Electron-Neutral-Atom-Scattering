@@ -57,7 +57,7 @@ int main()
     int Z=inputs[0];            //atomic number
     double Energy=inputs[1];    //max energy level in eV to calculate
     double Rmax=2.0;            //Mesh radius limit in angstroms
-    double scale=(inputs[4]);           //Scale for how far out past Rmax to go
+    double scale=inputs[4];           //Scale for how far out past Rmax to go
     double h=scale*Rmax/MeshSize;                 //step size in angstroms
     double k=sqrt(Energy/hbar2m);                 //wavenumber 1/A
     double cval=-(2*Rmax)*(2*Rmax)*Energy/hbar2m; //constant for quadratic solving
