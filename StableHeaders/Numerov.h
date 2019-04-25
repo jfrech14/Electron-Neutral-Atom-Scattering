@@ -6,7 +6,7 @@
       return((1.0/hbar2m)*( V + hbar2m*lam*(lam+1)/r/r - E));
   }
 
-  std::vector<double> ForwardNumerov(std::vector<std::vector<double> > &CrossSec, std::vector<std::vector<double> >& Vpot, double dh, int lmax, double scale, double eEnergy, double k, int iter)
+  std::vector<double> ForwardNumerov(double Ewant, std::vector<std::vector<double> > &PartialWaves,std::vector<std::vector<double> > &CrossSec, std::vector<std::vector<double> >& Vpot, double dh, int lmax, double scale, double eEnergy, double k, int iter)
   {
 
       int i1, i2;
@@ -14,12 +14,12 @@
       int size=Vpot.size()-1;
 
       /* allocate arrays */
-      std::vector<double> tandelta (lmax+1,0.0);
-      std::vector<double> delta (lmax+1,0.0);
+      std::vector<long double> tandelta (lmax+1,0.0);
+      std::vector<long double> delta (lmax+1,0.0);
       std::vector<double> cross (lmax+1,0.0);
       std::vector<long double> u (size+1,0.0);
-      std::vector<double> p (size+1,0.0);
-      std::vector<double> f (size+1,0.0);
+      std::vector<long double> p (size+1,0.0);
+      std::vector<long double> f (size+1,0.0);
       std::vector<double> DiffCross (181,0.0);
       std::vector<std::vector<double > > DiffCross1 (181,std::vector<double>(lmax+1,0));
 
@@ -37,7 +37,6 @@
           for (int i = 0; i <= size ; i++ )
           {
             f[i] = 1.0 - ddh12*g(Vpot[i][1],eEnergy,Vpot[i][0],l);
-            u[i] = 0.0 ;
           }
 
           u[0] = 0;
@@ -73,7 +72,7 @@
           {
             p[i] = p[i] / (p[i2]/u[i2]);
           }
-          
+
           //Calculate Differential Cross Section - first of two summations
           for (int theta=0;theta<=180;theta++)
           {
@@ -90,6 +89,7 @@
           for (int n=0; n<=lmax; ++n)
           {
               DiffCross[theta]+=DiffCross1[theta][n];
+              if ((int)CrossSec[iter][0]==(int)Ewant){PartialWaves[theta][n]=DiffCross1[theta][n];}
           }
       }
 

@@ -30,7 +30,7 @@ int main()
     //Reading input file. Change the size of "inputs" if there are more inputs-------
     std::ifstream inputfile ("Input.txt");
     std::string line;
-    std::vector<double> inputs (5,0.0);
+    std::vector<double> inputs (6,0.0);
     if (inputfile.is_open())
     {
         int inputi=0;
@@ -62,7 +62,8 @@ int main()
     double k=sqrt(Energy/hbar2m);                 //wavenumber 1/A
     double cval=-(2*Rmax)*(2*Rmax)*Energy/hbar2m; //constant for quadratic solving
     int lmax=(-1+sqrt(1-4*cval))/(2);             //Set max lmax for highest energy for energy for loop
-    int NumEnergies=inputs[2];
+    int NumEnergies=inputs[2]; //Number of energies to calculate the cross section for
+    double Espec=inputs[5];    //Specific energy to get partial waves at
 
     //Timekeeping------------------------------------------------------------------------------------------------------------------------------------------------------
         std::chrono::time_point<std::chrono::system_clock> startTTM, endTTM, startDIFF,endDIFF, startTOT, endTOT;
@@ -79,8 +80,9 @@ int main()
         std::vector<std::vector<double > > Potential (MeshSize+1,std::vector<double>(2,0));
         std::vector<double > Rarray (MeshSize+1,0.0);
         std::vector<double > NumerovSol (181,0);
-        std::vector<std::vector<double > > DiffCrossSections (181,std::vector<double>(NumEnergies+1,0.0));
-        std::vector< std::vector<double > > CrossSections (NumEnergies, std::vector<double> (2,0.0));
+        std::vector<std::vector<double > > DiffCrossSections (181,std::vector<double>(NumEnergies+2,0.0));
+        std::vector< std::vector<double > > CrossSections (NumEnergies+1, std::vector<double> (2,0.0));
+        std::vector< std::vector<double > > PartialWaves (181, std::vector<double> (lmax+1,0.0));
     //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -105,14 +107,14 @@ int main()
 
     omp_set_num_threads(threads);
     #pragma omp parallel for shared(CrossSections,lmax,scale,h,Potential,NumEnergies)
-    for (int en=0;en<NumEnergies;en++)
+    for (int en=0;en<=NumEnergies;en++)
     {
         CrossSections[en][0]=(double) pow(10,(-2.0+(en)*(2+log10(inputs[1]))/NumEnergies));
         Energy=CrossSections[en][0];
         k=sqrt(Energy/hbar2m);
 
 
-        NumerovSol=ForwardNumerov(CrossSections,Potential,h,lmax,scale,Energy,k,en);
+        NumerovSol=ForwardNumerov(Espec,PartialWaves,CrossSections,Potential,h,lmax,scale,Energy,k,en);
         for (int jj=0;jj<=180;jj++)
         {
             DiffCrossSections[jj][en+1]=NumerovSol[jj];
@@ -124,7 +126,7 @@ int main()
     std::ofstream Solutions1_out (periodicsearch(Z)+"TotalCS.txt");
     if (Solutions1_out.is_open())
     {
-        for (int b=0; b<NumEnergies; ++b)
+        for (int b=0; b<=NumEnergies; ++b)
         {
             Solutions1_out<<CrossSections[b][0];
             for (int c=1; c<=1; ++c)
@@ -161,6 +163,20 @@ int main()
             }Solutions3_out<<std::endl;
         }
         Solutions3_out.close();
+    }
+
+    std::ofstream Solutions4_out (periodicsearch(Z)+"_"+std::to_string(Espec).substr(0, std::to_string(Espec).find(".") + 2 + 1)+"eV_PartialWaves.txt");
+    if (Solutions4_out.is_open())
+    {
+        for (int b=0; b<=180; ++b)
+        {
+            Solutions4_out<<PartialWaves[b][0];
+            for (int c=1; c<=lmax; ++c)
+            {
+                Solutions4_out<<"\t"<<PartialWaves[b][c];
+            }Solutions4_out<<std::endl;
+        }
+        Solutions4_out.close();
     }
 
     //Timekeeping------------------------------------------------------------------------------------------------------------------------------------------------------
