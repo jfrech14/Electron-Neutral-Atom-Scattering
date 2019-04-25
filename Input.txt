@@ -1,12 +1,12 @@
 #Atomic Number of Scatterer
-59
+18
 #Max Energy in eV
-5
+3000
 #Number of energies on a log10 scale from 10^-2 to Emax
 1
 #Mesh size
-5000
+50000
 #Scale for Rmax (radius vector is scale*2angstroms)
 18.0
 #Energy to output the partial waves at
-5.0
+3000.0

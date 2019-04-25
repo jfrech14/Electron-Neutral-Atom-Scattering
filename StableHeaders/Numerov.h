@@ -22,6 +22,7 @@
       std::vector<long double> f (size+1,0.0);
       std::vector<double> DiffCross (181,0.0);
       std::vector<std::vector<double > > DiffCross1 (181,std::vector<double>(lmax+1,0));
+      std::vector<std::complex<double> > Amplitude(181,(0.0,0.0));
 
       ddh12 = dh*dh/12.0;
       i1 = (int) ((scale-3)*((size-1)/scale/2.0));
@@ -73,13 +74,13 @@
             p[i] = p[i] / (p[i2]/u[i2]);
           }
 
+          std::complex<double> cossin (cos(delta[l]),sin(delta[l]));
           //Calculate Differential Cross Section - first of two summations
           for (int theta=0;theta<=180;theta++)
           {
-            for (int ll=0;ll<=lmax;ll++)
-              {
-                DiffCross1[theta][l]+=1.0/k/k*(2.0*l+1)*(2.0*ll+1)*LegendreP(ll,cos(theta*PI/180.0))*LegendreP(l,cos(theta*PI/180.0))*sin(delta[l])*sin(delta[ll]);
-              }
+                std::complex<double> real((2*l+1)/k*sin(delta[l])*LegendreP(l,cos(theta*PI/180.0)),0.0);
+                DiffCross1[theta][l]=std::real(real*cossin);
+                Amplitude[theta]+=real*cossin;
           }
       }
 
@@ -90,7 +91,7 @@
       {
           for (int n=0; n<=lmax; ++n)
           {
-              DiffCross[theta]+=DiffCross1[theta][n];
+              DiffCross[theta]=std::norm(Amplitude[theta]);
               if (check==1){PartialWaves[theta][n]=DiffCross1[theta][n];}
           }
       }check=1;
