@@ -84,15 +84,16 @@
       }
 
       //Calculate Differential Cross Section - last of two summations
+      if (CrossSec[iter][0]>=Ewant-Ewant/20.0&&CrossSec[iter][0]<=Ewant+Ewant/20.0){check=1;}
+      else{check=0;}
       for(int theta=0;theta<=180;theta++)
       {
           for (int n=0; n<=lmax; ++n)
           {
               DiffCross[theta]+=DiffCross1[theta][n];
-              if ((int)CrossSec[iter][0]==(int)Ewant&&check!=1){PartialWaves[theta][n]=DiffCross1[theta][n];}
+              if (check==1){PartialWaves[theta][n]=DiffCross1[theta][n];}
           }
       }check=1;
-      std::cout<<CrossSec[iter][0]<<std::endl;
 
       //"integrate" total cross section of all partial waves
       TotalCross =0.0;
