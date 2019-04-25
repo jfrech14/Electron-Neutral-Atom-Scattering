@@ -92,7 +92,6 @@
               if ((int)CrossSec[iter][0]==(int)Ewant&&check!=1){PartialWaves[theta][n]=DiffCross1[theta][n];}
           }
       }check=1;
-      std::cout<<CrossSec[iter][0]<<std::endl;
 
       //"integrate" total cross section of all partial waves
       TotalCross =0.0;
