@@ -143,7 +143,7 @@ int main()
         for (int b=0; b<=180; ++b)
         {
             Solutions2_out<<DiffCrossSections[b][0];
-            for (int c=1; c<=NumEnergies; ++c)
+            for (int c=1; c<=NumEnergies+1; ++c)
             {
                 Solutions2_out<<"\t"<<DiffCrossSections[b][c];
             }Solutions2_out<<std::endl;

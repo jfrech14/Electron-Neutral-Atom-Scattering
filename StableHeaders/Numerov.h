@@ -9,7 +9,7 @@
   std::vector<double> ForwardNumerov(double Ewant, std::vector<std::vector<double> > &PartialWaves,std::vector<std::vector<double> > &CrossSec, std::vector<std::vector<double> >& Vpot, double dh, int lmax, double scale, double eEnergy, double k, int iter)
   {
 
-      int i1, i2;
+      int i1, i2,check=0;
       double ddh12, norm, kappa, r1, r2, TotalCross ;
       int size=Vpot.size()-1;
 
@@ -89,9 +89,10 @@
           for (int n=0; n<=lmax; ++n)
           {
               DiffCross[theta]+=DiffCross1[theta][n];
-              if ((int)CrossSec[iter][0]==(int)Ewant){PartialWaves[theta][n]=DiffCross1[theta][n];}
+              if ((int)CrossSec[iter][0]==(int)Ewant&&check!=1){PartialWaves[theta][n]=DiffCross1[theta][n];}
           }
-      }
+      }check=1;
+      std::cout<<CrossSec[iter][0]<<std::endl;
 
       //"integrate" total cross section of all partial waves
       TotalCross =0.0;
