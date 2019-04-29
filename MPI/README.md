@@ -18,6 +18,6 @@ Required files are:
 `Periodic.h`
 
 
-On MacOS Mojave with clang++ and libomp, I compile with:
+On a cluster with the Intel C++ compiler, I compile with:
 
-`clang++ -Xpreprocessor -fopenmp -lomp -o Scattering ThomasFermi.cpp`
+```mpiicpc -std=c++11 -O3 -o Scattering ThomasFermi.cpp```
