@@ -1,0 +1,3 @@
+This is for running the code on clusters enabled with MPI. The partial wave output has been removed from the code since 
+it wasn't all that useful except for checking results. The only requirement is that the number of Energies to calculate 
+be an integer multiple of the number of tasks you assign to MPI. This requirement simplified the conversion from OpenMP.
